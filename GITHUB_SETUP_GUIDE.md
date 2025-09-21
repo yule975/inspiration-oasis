@@ -12,7 +12,7 @@
    - 或直接访问：https://github.com/new
 
 3. **配置仓库信息**
-   - **Repository name**: `灵感绿洲` 或 `inspiration-oasis`
+   - **Repository name**: `inspiration-oasis`
    - **Description**: `一个现代化的灵感管理和创意协作平台`
    - **Visibility**: 选择 Public 或 Private（根据需要）
    - **不要勾选**：
@@ -27,7 +27,7 @@
 
 ```bash
 # 添加远程仓库（替换 YOUR_USERNAME 为您的 GitHub 用户名）
-git remote add origin https://github.com/YOUR_USERNAME/灵感绿洲.git
+git remote add origin https://github.com/YOUR_USERNAME/inspiration-oasis.git
 
 # 推送代码到 GitHub
 git branch -M main
@@ -38,7 +38,7 @@ git push -u origin main
 
 ```bash
 # 添加远程仓库（替换 YOUR_USERNAME 为您的 GitHub 用户名）
-git remote add origin git@github.com:YOUR_USERNAME/灵感绿洲.git
+git remote add origin git@github.com:YOUR_USERNAME/inspiration-oasis.git
 
 # 推送代码到 GitHub
 git branch -M main
@@ -58,7 +58,7 @@ git push -u origin main
 1. 访问 [vercel.com](https://vercel.com)
 2. 使用 GitHub 账号登录
 3. 点击 "New Project"
-4. 选择您刚创建的 "灵感绿洲" 仓库
+4. 选择您刚创建的 "inspiration-oasis" 仓库
 5. 配置环境变量：
    - `NEXT_PUBLIC_API_URL`
    - `NEXT_PUBLIC_SUPABASE_URL`
@@ -71,7 +71,7 @@ git push -u origin main
 2. 使用 GitHub 账号登录
 3. 点击 "New Project"
 4. 选择 "Deploy from GitHub repo"
-5. 选择您的 "灵感绿洲" 仓库
+5. 选择您的 "inspiration-oasis" 仓库
 6. 设置根目录为 `backend`
 7. 配置环境变量：
    - `DATABASE_URL`

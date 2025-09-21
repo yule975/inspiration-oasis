@@ -14,7 +14,7 @@ if [ $# -eq 0 ]; then
 fi
 
 GITHUB_USERNAME=$1
-REPO_NAME="灵感绿洲"
+REPO_NAME="inspiration-oasis"
 
 echo "🚀 开始推送灵感绿洲项目到 GitHub..."
 echo "📁 GitHub 用户名: $GITHUB_USERNAME"
