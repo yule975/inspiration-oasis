@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  password     String?   // 密码哈希
+  avatar       String?
+  role         String    @default("user") // user, admin, super_admin
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // 关联关系
+  ideas    Idea[]
+  assets   Asset[]
+  comments Comment[]
+  likes    Like[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+}
+
+// 灵感表
+model Idea {
+  id           String   @id @default(uuid())
+  content      String
+  tags         String[] // PostgreSQL数组类型
+  likesCount   Int      @default(0) @map("likes_count")
+  commentsCount Int     @default(0) @map("comments_count")
+  viewCount    Int      @default(0) @map("view_count")
+  isArchived   Boolean  @default(false) @map("is_archived")
+  authorId     String   @map("author_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       Like[]
+  assets      Asset[]     // 归档到的资产
+  attachments Attachment[]
+  aiEnhancements AIEnhancement[]
+
+  @@map("ideas")
+}
+
+// 评论表
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  ideaId    String   @map("idea_id")
+  authorId  String   @map("author_id")
+  parentId  String?  @map("parent_id") // 回复功能
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  idea     Idea      @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+// 点赞表
+model Like {
+  id       String @id @default(uuid())
+  ideaId   String @map("idea_id")
+  userId   String @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // 关联关系
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 联合唯一索引，确保用户对同一个想法只能点赞一次
+  @@unique([ideaId, userId])
+  @@map("likes")
+}
+
+// 资产表
+model Asset {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  content     String?    // 详细内容
+  category    String
+  tags        String[]   // PostgreSQL数组类型
+  downloadCount Int      @default(0) @map("download_count")
+  version     String     @default("1.0.0")
+  sourceType  SourceType @default(MANUAL) @map("source_type")
+  sourceId    String?    @map("source_id") // 如果来自灵感，记录灵感ID
+  authorId    String     @map("author_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  // 关联关系
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  sourceIdea  Idea?        @relation(fields: [sourceId], references: [id])
+  attachments Attachment[]
+  changelogs  Changelog[]
+
+  @@map("assets")
+}
+
+enum SourceType {
+  IDEA      // 来自灵感
+  MANUAL    // 手动创建
+}
+
+// 更新日志表
+model Changelog {
+  id        String   @id @default(uuid())
+  assetId   String   @map("asset_id")
+  version   String
+  changes   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // 关联关系
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@map("changelogs")
+}
+
+// 标签表 (用于统计和管理)
+model Tag {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  usageCount Int      @default(0) @map("usage_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("tags")
+}
+
+// 附件表
+model Attachment {
+  id       String          @id @default(uuid())
+  fileName String          @map("file_name")
+  fileType String          @map("file_type")
+  fileSize Int             @map("file_size")
+  fileUrl  String          @map("file_url")
+  uploadedBy String        @map("uploaded_by")
+  entityType AttachmentType @map("entity_type")
+  entityId String          @map("entity_id")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  // 关联关系 (多态关联)
+  idea  Idea?  @relation(fields: [entityId], references: [id], map: "attachment_idea_fk")
+  asset Asset? @relation(fields: [entityId], references: [id], map: "attachment_asset_fk")
+
+  @@map("attachments")
+}
+
+enum AttachmentType {
+  IDEA
+  ASSET
+}
+
+// AI增强历史表
+model AIEnhancement {
+  id               String          @id @default(uuid())
+  ideaId           String          @map("idea_id")
+  userId           String          @map("user_id")
+  enhancementType  EnhancementType @map("enhancement_type")
+  originalContent  String          @map("original_content")
+  enhancedContent  String          @map("enhanced_content")
+  modelUsed        String          @map("model_used")
+  tokensUsed       Int?            @map("tokens_used")
+  processingTime   Int?            @map("processing_time") // 毫秒
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  // 关联关系
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@map("ai_enhancements")
+}
+
+enum EnhancementType {
+  OPTIMIZE  // 优化表达
+  EXPAND    // 扩展思路
+  TONE      // 润色语气
+  SUMMARIZE // 智能总结
+}
+
+// AI对话历史表
+model AIConversation {
+  id        String   @id @default(uuid())
+  sessionId String   @map("session_id")
+  userId    String   @map("user_id")
+  context   String?  // 对话上下文
+  messages  Json     // 存储对话消息数组
+  modelUsed String   @map("model_used")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ai_conversations")
+}
+
+// 每日简报表
+model DailyBrief {
+  id          String   @id @default(uuid())
+  date        DateTime @unique
+  summary     String
+  newsItems   Json     // 存储新闻条目数组
+  categories  String[] // 关注的分类
+  generatedBy String   @map("generated_by") // AI模型
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("daily_briefs")
+}
+
+// 系统统计表 (用于分析和监控)
+model SystemStats {
+  id             String   @id @default(uuid())
+  date           DateTime @unique
+  totalIdeas     Int      @map("total_ideas")
+  totalAssets    Int      @map("total_assets")
+  activeUsers    Int      @map("active_users")
+  apiCalls       Int      @map("api_calls")
+  aiTokensUsed   Int      @map("ai_tokens_used")
+  topContributor String?  @map("top_contributor")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("system_stats")
+}
