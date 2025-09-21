@@ -1,0 +1,73 @@
+# ===========================================
+# Vercel 环境变量一键复制模板
+# ===========================================
+# 复制以下内容到 Vercel Dashboard > Settings > Environment Variables
+# 每行一个变量，格式：变量名=变量值
+
+# 基础配置
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://your-project.vercel.app
+NEXT_PUBLIC_API_URL=https://your-project.vercel.app
+
+# Supabase 配置（必需）
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# 数据库配置
+DATABASE_URL=postgresql://postgres.your-project:[password]@aws-0-us-east-1.pooler.supabase.com:5432/postgres
+DIRECT_URL=postgresql://postgres.your-project:[password]@aws-0-us-east-1.pooler.supabase.com:5432/postgres
+
+# 安全配置
+JWT_SECRET=your_super_strong_jwt_secret_min_32_characters
+JWT_EXPIRES_IN=7d
+
+# 文件存储
+NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=attachments
+MAX_FILE_SIZE=10
+
+# 监控分析
+NEXT_PUBLIC_VERCEL_ANALYTICS=true
+
+# 安全设置
+CORS_ORIGIN=https://your-project.vercel.app
+RATE_LIMIT_MAX=1000
+LOG_LEVEL=warn
+
+# ===========================================
+# 可选配置（根据需要添加）
+# ===========================================
+
+# AI功能
+# OPENAI_API_KEY=sk-your-openai-api-key
+# OPENAI_MODEL=gpt-3.5-turbo
+
+# Redis缓存
+# REDIS_URL=rediss://default:password@your-redis-url:6380
+
+# 邮件服务
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your-email@gmail.com
+# SMTP_PASS=your-app-password
+
+# Google Analytics
+# NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+
+# Sentry 错误监控
+# SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+
+# ===========================================
+# 使用说明
+# ===========================================
+# 
+# 1. 替换所有占位符为真实值
+# 2. 在 Vercel Dashboard 中逐个添加变量
+# 3. 确保敏感信息不使用 NEXT_PUBLIC_ 前缀
+# 4. 部署后测试所有功能
+# 
+# 获取真实值的地方：
+# - Supabase: https://supabase.com/dashboard
+# - OpenAI: https://platform.openai.com/api-keys
+# - Google Analytics: https://analytics.google.com
+# - Sentry: https://sentry.io
