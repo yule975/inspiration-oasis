@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../../components/ui/input-otp"
 import { Label } from "../../components/ui/label"
 import { Github } from "lucide-react"
 import { useAuth } from "../../contexts/AuthContext"
@@ -16,6 +18,8 @@ import { TouchOptimizedButton, TouchOptimizedInput } from "../../components/ui/m
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [otp, setOtp] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { login, isAuthenticated } = useAuth()
@@ -52,6 +56,28 @@ export default function LoginPage() {
   const handleTestLogin = () => {
     // 直接跳转到dashboard，无需登录验证
     router.push('/dashboard')
+  }
+
+  const sendCode = async () => {
+    if (!email) {
+      toast.error('请先填写邮箱')
+      return
+    }
+    try {
+      setIsLoading(true)
+      const res = await fetch('/api/auth/send-verification-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('发送失败')
+      setOtpSent(true)
+      toast.success('验证码已发送，请查收')
+    } catch (err) {
+      toast.error('发送验证码失败')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSSOLogin = (provider: string) => {
@@ -92,44 +118,96 @@ export default function LoginPage() {
       {/* Bottom/Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
+          <Card className="shadow-xl backdrop-blur-sm bg-card/95 border border-border/50">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center">欢迎回来</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">邮箱</Label>
-                  <TouchOptimizedInput
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">密码</Label>
-                  <TouchOptimizedInput
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <TouchOptimizedButton
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                  size="lg"
-                  onClick={() => {}}
-                >
-                  {isLoading ? "登录中..." : "登录"}
-                </TouchOptimizedButton>
-              </form>
+              <Tabs defaultValue="otp" className="w-full">
+                <TabsList className="w-full">
+                  <TabsTrigger value="otp">验证码登录</TabsTrigger>
+                  <TabsTrigger value="password">密码登录</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="otp" className="mt-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp-email">邮箱</Label>
+                      <TouchOptimizedInput
+                        id="otp-email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>验证码</Label>
+                      <div className="flex items-center gap-2">
+                        <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                        <Button type="button" variant="outline" onClick={sendCode} disabled={isLoading}>
+                          {otpSent ? '重新发送' : '发送验证码'}
+                        </Button>
+                      </div>
+                    </div>
+                    <TouchOptimizedButton
+                      type="button"
+                      className="w-full"
+                      disabled={isLoading || !otp}
+                      size="lg"
+                      onClick={() => router.push('/dashboard')}
+                    >
+                      登录
+                    </TouchOptimizedButton>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="password" className="mt-4">
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">邮箱</Label>
+                      <TouchOptimizedInput
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">密码</Label>
+                      <TouchOptimizedInput
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <TouchOptimizedButton
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                      size="lg"
+                      onClick={() => {}}
+                    >
+                      {isLoading ? "登录中..." : "登录"}
+                    </TouchOptimizedButton>
+                  </form>
+                </TabsContent>
+              </Tabs>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
