@@ -37,11 +37,17 @@ export async function POST(request: NextRequest) {
     console.log('🏷️ 用途:', purpose);
     
     // 检查阿里云邮件服务配置
+    const accessKeyId = process.env.ALIYUN_ACCESS_KEY_ID || ''
+    const accessKeySecret = process.env.ALIYUN_ACCESS_KEY_SECRET || ''
+    
     console.log('🔍 环境变量检查:', {
-      hasAccessKeyId: !!process.env.ALIYUN_ACCESS_KEY_ID,
-      hasAccessKeySecret: !!process.env.ALIYUN_ACCESS_KEY_SECRET,
+      hasAccessKeyId: !!accessKeyId,
+      hasAccessKeySecret: !!accessKeySecret,
       hasFromAddress: !!process.env.ALIYUN_FROM_ADDRESS,
-      accessKeyIdLength: process.env.ALIYUN_ACCESS_KEY_ID?.length || 0
+      accessKeyIdLength: accessKeyId.length,
+      accessKeyIdPrefix: accessKeyId.substring(0, 8),
+      isPlaceholder: accessKeyId.includes('<') || accessKeyId.includes('your_'),
+      actualValue: accessKeyId === '<your_aliyun_access_key_id>' ? 'PLACEHOLDER_DETECTED' : 'REAL_VALUE'
     });
     
     try {
