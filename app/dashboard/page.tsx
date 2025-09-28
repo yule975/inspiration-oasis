@@ -32,15 +32,15 @@ import {
   PieChart,
   RefreshCw,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { TouchFeedback, useSwipeGesture, MobileScrollContainer } from "@/components/ui/mobile-enhancements"
-import { TouchOptimizedButton, PullToRefresh, FloatingActionButton, MobileActionBar } from "@/components/ui/mobile-touch-optimizations"
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
+import { Button } from "../../components/ui/button"
+import { Tabs, TabsContent } from "../../components/ui/tabs"
+import { Textarea } from "../../components/ui/textarea"
+import { Badge } from "../../components/ui/badge"
+import { Card, CardContent, CardHeader } from "../../components/ui/card"
+import { Input } from "../../components/ui/input"
+import { TouchFeedback, useSwipeGesture, MobileScrollContainer } from "../../components/ui/mobile-enhancements"
+import { TouchOptimizedButton, PullToRefresh, FloatingActionButton, MobileActionBar } from "../../components/ui/mobile-touch-optimizations"
 
 // Mock data
 const mockIdeas = [
