@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: '灵感绿洲 - 创意协作平台',
   description: '唤醒团队的伟大想法，让创意在这里生根发芽',
   generator: 'Next.js',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
