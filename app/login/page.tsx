@@ -111,7 +111,7 @@ export default function LoginPage() {
       {/* Bottom/Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-[#FFFBF2]">
+          <Card className="border-none shadow-none bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center text-[#2F6A53]">欢迎回来</CardTitle>
             </CardHeader>
@@ -136,7 +136,7 @@ export default function LoginPage() {
               {mode === 'otp' ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="otp-email">邮箱</Label>
+                    <Label htmlFor="otp-email" className="text-[#2F6A53]">邮箱</Label>
                     <TouchOptimizedInput
                       id="otp-email"
                       type="email"
@@ -147,7 +147,7 @@ export default function LoginPage() {
                     />
                   </div>
                 <div className="space-y-2">
-                  <Label>验证码</Label>
+                  <Label className="text-[#2F6A53]">验证码</Label>
                   <div className="flex items-center gap-2">
                     <TouchOptimizedInput
                       type="text"
@@ -157,7 +157,7 @@ export default function LoginPage() {
                       maxLength={6}
                       required
                     />
-                    <Button type="button" variant="outline" onClick={sendCode} disabled={isLoading}>
+                    <Button type="button" className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white" onClick={sendCode} disabled={isLoading}>
                       {otpSent ? '重新发送' : '发送验证码'}
                     </Button>
                   </div>
@@ -174,7 +174,7 @@ export default function LoginPage() {
               ) : (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">邮箱</Label>
+                    <Label htmlFor="email" className="text-[#2F6A53]">邮箱</Label>
                     <TouchOptimizedInput
                       id="email"
                       type="email"
@@ -185,7 +185,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">密码</Label>
+                    <Label htmlFor="password" className="text-[#2F6A53]">密码</Label>
                     <TouchOptimizedInput
                       id="password"
                       type="password"
@@ -218,8 +218,7 @@ export default function LoginPage() {
               <TouchOptimizedButton
                 type="button"
                 onClick={() => router.push('/dashboard')}
-                className="w-full border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5 bg-transparent font-medium"
-                size="lg"
+                className="w-full border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5 bg-transparent font-medium h-12"
                 variant="outline"
               >
                 <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

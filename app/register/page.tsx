@@ -130,14 +130,14 @@ export default function RegisterPage() {
       {/* Bottom/Right Side - Register Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-[#FFFBF2]">
+          <Card className="border-none shadow-none bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center text-[#2F6A53]">创建账户</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="username">昵称</Label>
+                  <Label htmlFor="username" className="text-[#2F6A53]">昵称</Label>
                   <TouchOptimizedInput 
                     id="username" 
                     value={username} 
@@ -147,7 +147,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">邮箱</Label>
+                  <Label htmlFor="email" className="text-[#2F6A53]">邮箱</Label>
                   <div className="flex items-center gap-2">
                     <TouchOptimizedInput 
                       id="email" 
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                     {!otpVerified && (
                       <Button 
                         type="button" 
-                        variant="outline" 
+                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
                         onClick={sendOtp} 
                         disabled={isLoading || !email}
                         size="sm"
@@ -174,48 +174,44 @@ export default function RegisterPage() {
                     <p className="text-sm text-green-600">✓ 邮箱验证成功</p>
                   )}
                 </div>
-                {otpSent && !otpVerified && (
-                  <div className="space-y-2">
-                    <Label>验证码</Label>
-                    <div className="flex items-center gap-2">
-                      <TouchOptimizedInput
-                        type="text"
-                        placeholder="请输入6位验证码"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        maxLength={6}
-                        required
-                      />
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">验证码</Label>
+                  <div className="flex items-center gap-2">
+                    <TouchOptimizedInput
+                      type="text"
+                      placeholder="请输入6位验证码"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      maxLength={6}
+                      required
+                      disabled={otpVerified}
+                    />
+                    {!otpVerified && (
                       <Button 
                         type="button" 
+                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
                         onClick={verifyOtp} 
                         disabled={isLoading || otp.length !== 6}
                         size="sm"
                       >
                         {isLoading ? '验证中...' : '验证'}
                       </Button>
-                    </div>
+                    )}
                   </div>
-                )}
+                  {otpVerified && (
+                    <p className="text-sm text-green-600">✓ 验证码验证成功</p>
+                  )}
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">密码</Label>
+                  <Label htmlFor="password" className="text-[#2F6A53]">密码</Label>
                   <TouchOptimizedInput 
                     id="password" 
                     type="password" 
                     value={password} 
                     onChange={e=>setPassword(e.target.value)} 
-                    placeholder="••••••••" 
+                    placeholder="至少8位，包含大小写字母和数字" 
                     required 
                   />
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p>密码要求：</p>
-                    <ul className="list-disc list-inside space-y-0.5">
-                      <li>至少8位字符</li>
-                      <li>包含大写字母</li>
-                      <li>包含小写字母</li>
-                      <li>包含数字</li>
-                    </ul>
-                  </div>
                 </div>
                 <TouchOptimizedButton 
                   type="submit" 
