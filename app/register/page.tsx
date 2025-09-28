@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { TouchOptimizedButton, TouchOptimizedInput } from '@/components/ui/mobile-touch-optimizations'
-import { useAuth } from '@/contexts/AuthContext'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Label } from '../../components/ui/label'
+import { TouchOptimizedButton, TouchOptimizedInput } from '../../components/ui/mobile-touch-optimizations'
+import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
 
 export default function RegisterPage() {
