@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Label } from '../../components/ui/label'
+import { Button } from '../../components/ui/button'
 import { TouchOptimizedButton, TouchOptimizedInput } from '../../components/ui/mobile-touch-optimizations'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../components/ui/input-otp'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
 
@@ -12,6 +14,9 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [otp, setOtp] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpVerified, setOtpVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { register, isAuthenticated } = useAuth()
@@ -20,10 +25,58 @@ export default function RegisterPage() {
     if (isAuthenticated) router.push('/dashboard')
   }, [isAuthenticated, router])
 
+  const sendOtp = async () => {
+    if (!email) {
+      toast.error('请先填写邮箱')
+      return
+    }
+    try {
+      setIsLoading(true)
+      const res = await fetch('/api/auth/send-verification-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('发送失败')
+      setOtpSent(true)
+      toast.success('验证码已发送，请查收')
+    } catch (err) {
+      toast.error('发送验证码失败')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const verifyOtp = () => {
+    if (otp.length === 6) {
+      setOtpVerified(true)
+      toast.success('验证码验证成功')
+    } else {
+      toast.error('请输入完整的验证码')
+    }
+  }
+
+  const validatePassword = (pwd: string) => {
+    if (pwd.length < 8) return '密码至少需要8位字符'
+    if (!/(?=.*[a-z])/.test(pwd)) return '密码需要包含至少一个小写字母'
+    if (!/(?=.*[A-Z])/.test(pwd)) return '密码需要包含至少一个大写字母'
+    if (!/(?=.*\d)/.test(pwd)) return '密码需要包含至少一个数字'
+    return null
+  }
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!username || !email || !password) {
       toast.error('请填写完整信息')
+      return
+    }
+    if (!otpVerified) {
+      toast.error('请先验证邮箱')
+      return
+    }
+    const pwdError = validatePassword(password)
+    if (pwdError) {
+      toast.error(pwdError)
       return
     }
     try {
@@ -85,15 +138,57 @@ export default function RegisterPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">邮箱</Label>
-                  <TouchOptimizedInput 
-                    id="email" 
-                    type="email" 
-                    value={email} 
-                    onChange={e=>setEmail(e.target.value)} 
-                    placeholder="your@email.com" 
-                    required 
-                  />
+                  <div className="flex items-center gap-2">
+                    <TouchOptimizedInput 
+                      id="email" 
+                      type="email" 
+                      value={email} 
+                      onChange={e=>setEmail(e.target.value)} 
+                      placeholder="your@email.com" 
+                      required 
+                      disabled={otpVerified}
+                    />
+                    {!otpVerified && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={sendOtp} 
+                        disabled={isLoading || !email}
+                        size="sm"
+                      >
+                        {otpSent ? '重新发送' : '发送验证码'}
+                      </Button>
+                    )}
+                  </div>
+                  {otpVerified && (
+                    <p className="text-sm text-green-600">✓ 邮箱验证成功</p>
+                  )}
                 </div>
+                {otpSent && !otpVerified && (
+                  <div className="space-y-2">
+                    <Label>验证码</Label>
+                    <div className="flex items-center gap-2">
+                      <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                      <Button 
+                        type="button" 
+                        onClick={verifyOtp} 
+                        disabled={otp.length !== 6}
+                        size="sm"
+                      >
+                        验证
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="password">密码</Label>
                   <TouchOptimizedInput 
@@ -104,11 +199,20 @@ export default function RegisterPage() {
                     placeholder="••••••••" 
                     required 
                   />
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>密码要求：</p>
+                    <ul className="list-disc list-inside space-y-0.5">
+                      <li>至少8位字符</li>
+                      <li>包含大写字母</li>
+                      <li>包含小写字母</li>
+                      <li>包含数字</li>
+                    </ul>
+                  </div>
                 </div>
                 <TouchOptimizedButton 
                   type="submit" 
                   className="w-full" 
-                  disabled={isLoading}
+                  disabled={isLoading || !otpVerified}
                   size="lg"
                 >
                   {isLoading ? '注册中...' : '注册'}
