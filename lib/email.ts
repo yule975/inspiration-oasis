@@ -25,24 +25,38 @@ class AliyunEmailService {
   }
 
   private generateSignature(params: Record<string, string>): string {
-    // 阿里云API签名算法
+    // 阿里云API签名算法 - 修复版本
     const sortedKeys = Object.keys(params).sort()
     const canonicalizedQueryString = sortedKeys
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+      .map(key => `${this.percentEncode(key)}=${this.percentEncode(params[key])}`)
       .join('&')
 
-    const stringToSign = `POST&${encodeURIComponent('/')}&${encodeURIComponent(canonicalizedQueryString)}`
+    const stringToSign = `POST&${this.percentEncode('/')}&${this.percentEncode(canonicalizedQueryString)}`
+    
+    console.log('🔍 签名字符串:', stringToSign)
+    
     const signature = crypto
       .createHmac('sha1', this.config.accessKeySecret + '&')
-      .update(stringToSign)
+      .update(stringToSign, 'utf8')
       .digest('base64')
 
+    console.log('🔍 生成的签名:', signature)
     return signature
   }
 
+  private percentEncode(str: string): string {
+    return encodeURIComponent(str)
+      .replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+      .replace(/\*/g, '%2A')
+      .replace(/\+/g, '%20')
+      .replace(/%7E/g, '~')
+  }
+
   private createRequestParams(emailParams: EmailParams): Record<string, string> {
-    const timestamp = new Date().toISOString()
-    const nonce = crypto.randomUUID()
+    // 修复时间戳格式 - 阿里云需要UTC格式
+    const now = new Date()
+    const timestamp = now.toISOString().replace(/\.\d{3}Z$/, 'Z')
+    const nonce = Date.now().toString() + Math.random().toString(36).substring(2, 8)
 
     const params = {
       Action: 'SingleSendMail',
@@ -61,6 +75,11 @@ class AliyunEmailService {
       HtmlBody: emailParams.htmlBody,
       ...(emailParams.textBody && { TextBody: emailParams.textBody })
     }
+
+    console.log('🔍 请求参数（签名前）:', {
+      ...params,
+      AccessKeyId: params.AccessKeyId ? params.AccessKeyId.substring(0, 8) + '***' : 'missing'
+    })
 
     const signature = this.generateSignature(params)
     return { ...params, Signature: signature }
@@ -127,18 +146,44 @@ class AliyunEmailService {
         textBody
       })
 
-      const response = await fetch('https://dm.aliyuncs.com/', {
+      console.log('🔍 发送邮件请求参数:', {
+        to: email,
+        from: this.config.fromAddress,
+        hasAccessKey: !!this.config.accessKeyId,
+        hasSecretKey: !!this.config.accessKeySecret
+      })
+
+      // 阿里云邮件推送API endpoint - 可能需要指定区域
+      const endpoint = 'https://dm.ap-southeast-1.aliyuncs.com/'
+      
+      console.log('🔍 API endpoint:', endpoint)
+      console.log('🔍 请求体参数:', Object.keys(requestParams))
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+          'User-Agent': 'Aliyun-Email-Client/1.0',
+          'Accept': 'application/json'
         },
         body: new URLSearchParams(requestParams)
       })
 
-      const result = await response.json()
+      const responseText = await response.text()
+      console.log('📧 阿里云API响应状态:', response.status)
+      console.log('📧 阿里云API响应内容:', responseText)
+
+      let result
+      try {
+        result = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error('解析响应JSON失败:', parseError)
+        console.error('原始响应:', responseText)
+        return false
+      }
       
-      if (result.Code) {
-        console.error('阿里云邮件发送失败:', result)
+      if (result.Code && result.Code !== 'OK') {
+        console.error('🚫 阿里云邮件发送失败:', result)
         return false
       }
 

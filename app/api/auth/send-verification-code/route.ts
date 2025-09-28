@@ -36,6 +36,14 @@ export async function POST(request: NextRequest) {
     console.log('📧 收件人:', email);
     console.log('🏷️ 用途:', purpose);
     
+    // 检查阿里云邮件服务配置
+    console.log('🔍 环境变量检查:', {
+      hasAccessKeyId: !!process.env.ALIYUN_ACCESS_KEY_ID,
+      hasAccessKeySecret: !!process.env.ALIYUN_ACCESS_KEY_SECRET,
+      hasFromAddress: !!process.env.ALIYUN_FROM_ADDRESS,
+      accessKeyIdLength: process.env.ALIYUN_ACCESS_KEY_ID?.length || 0
+    });
+    
     try {
       // 尝试发送邮件
       const emailSent = await emailService.sendVerificationCode(email, code, purpose as 'login' | 'register');
@@ -47,19 +55,18 @@ export async function POST(request: NextRequest) {
           message: '验证码已发送到您的邮箱，请查收'
         });
       } else {
-        console.log('⚠️ 邮件发送失败，但验证码已生成（可在控制台查看）');
+        console.log('⚠️ 邮件发送失败，但验证码已生成');
         return NextResponse.json({
           success: true,
-          message: '验证码已生成，请在控制台查看（邮件服务暂时不可用）'
+          message: '验证码已生成，请查看服务器日志获取验证码'
         });
       }
     } catch (emailError) {
       console.error('邮件服务异常:', emailError);
       console.log('💡 验证码已生成，请在控制台查看:', code);
-      
       return NextResponse.json({
         success: true,
-        message: '验证码已生成，请在控制台查看（邮件服务暂时不可用）'
+        message: '验证码已生成，请查看服务器日志获取验证码'
       });
     }
     

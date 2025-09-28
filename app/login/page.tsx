@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [otpSent, setOtpSent] = useState(false)
   const [mode, setMode] = useState<'otp' | 'password'>('otp')
   const [isLoading, setIsLoading] = useState(false)
+  const [countdown, setCountdown] = useState(0) // 倒计时状态
   const router = useRouter()
   const { login, isAuthenticated } = useAuth()
 
@@ -28,6 +29,16 @@ export default function LoginPage() {
       router.push('/dashboard')
     }
   }, [isAuthenticated, router])
+
+  // 倒计时效果
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [countdown])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,6 +76,7 @@ export default function LoginPage() {
       })
       if (!res.ok) throw new Error('发送失败')
       setOtpSent(true)
+      setCountdown(60) // 开始60秒倒计时
       toast.success('验证码已发送，请查收')
     } catch (err) {
       toast.error('发送验证码失败')
@@ -191,8 +203,13 @@ export default function LoginPage() {
                       required
                       className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
-                    <Button type="button" className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white text-xs" onClick={sendCode} disabled={isLoading}>
-                      {otpSent ? '重新发送' : '发送验证码'}
+                    <Button 
+                      type="button" 
+                      className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white text-xs" 
+                      onClick={sendCode} 
+                      disabled={isLoading || countdown > 0}
+                    >
+                      {countdown > 0 ? `${countdown}秒后重发` : (otpSent ? '重新发送' : '发送验证码')}
                     </Button>
                   </div>
                 </div>
