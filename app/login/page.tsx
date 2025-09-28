@@ -11,7 +11,6 @@ import { Label } from "../../components/ui/label"
 import { useAuth } from "../../contexts/AuthContext"
 import { toast } from "sonner"
 import { TouchOptimizedButton, TouchOptimizedInput } from "../../components/ui/mobile-touch-optimizations"
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "../../components/ui/input-otp"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -112,22 +111,22 @@ export default function LoginPage() {
       {/* Bottom/Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
+          <Card className="border-none shadow-none bg-transparent">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">欢迎回来</CardTitle>
+              <CardTitle className="text-2xl text-center font-bold text-[#2F6A53]">欢迎回来</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-center gap-8">
                 <button
                   type="button"
-                  className={`text-base pb-1 ${mode === 'otp' ? 'text-primary border-b-2 border-primary font-semibold' : 'text-muted-foreground'}`}
+                  className={`text-base pb-1 ${mode === 'otp' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-gray-500'}`}
                   onClick={() => setMode('otp')}
                 >
                   验证码登录
                 </button>
                 <button
                   type="button"
-                  className={`text-base pb-1 ${mode === 'password' ? 'text-primary border-b-2 border-primary font-semibold' : 'text-muted-foreground'}`}
+                  className={`text-base pb-1 ${mode === 'password' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-gray-500'}`}
                   onClick={() => setMode('password')}
                 >
                   密码登录
@@ -147,33 +146,30 @@ export default function LoginPage() {
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>验证码</Label>
-                    <div className="flex items-center gap-2">
-                      <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                      <Button type="button" variant="outline" onClick={sendCode} disabled={isLoading}>
-                        {otpSent ? '重新发送' : '发送验证码'}
-                      </Button>
-                    </div>
+                <div className="space-y-2">
+                  <Label>验证码</Label>
+                  <div className="flex items-center gap-2">
+                    <TouchOptimizedInput
+                      type="text"
+                      placeholder="请输入6位验证码"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      maxLength={6}
+                      required
+                    />
+                    <Button type="button" variant="outline" onClick={sendCode} disabled={isLoading}>
+                      {otpSent ? '重新发送' : '发送验证码'}
+                    </Button>
                   </div>
-                  <TouchOptimizedButton
-                    type="button"
-                    className="w-full"
-                    disabled={isLoading || !otp}
-                    size="lg"
-                    onClick={() => router.push('/dashboard')}
-                  >
-                    登录
-                  </TouchOptimizedButton>
+                </div>
+                <TouchOptimizedButton
+                  type="button"
+                  className="w-full bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white rounded-lg h-12"
+                  disabled={isLoading || !otp}
+                  onClick={() => router.push('/dashboard')}
+                >
+                  登录
+                </TouchOptimizedButton>
                 </div>
               ) : (
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -201,9 +197,8 @@ export default function LoginPage() {
                   </div>
                   <TouchOptimizedButton
                     type="submit"
-                    className="w-full"
+                    className="w-full bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white rounded-lg h-12"
                     disabled={isLoading}
-                    size="lg"
                     onClick={() => {}}
                   >
                     {isLoading ? "登录中..." : "登录"}

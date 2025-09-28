@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Label } from '../../components/ui/label'
 import { Button } from '../../components/ui/button'
 import { TouchOptimizedButton, TouchOptimizedInput } from '../../components/ui/mobile-touch-optimizations'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '../../components/ui/input-otp'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
 
@@ -47,12 +46,23 @@ export default function RegisterPage() {
     }
   }
 
-  const verifyOtp = () => {
-    if (otp.length === 6) {
+  const verifyOtp = async () => {
+    if (otp.length !== 6) {
+      toast.error('请输入6位验证码')
+      return
+    }
+    // 这里应该调用后端API验证验证码，暂时模拟验证成功
+    // TODO: 实际项目中需要调用验证接口
+    try {
+      setIsLoading(true)
+      // 模拟API调用
+      await new Promise(resolve => setTimeout(resolve, 500))
       setOtpVerified(true)
       toast.success('验证码验证成功')
-    } else {
-      toast.error('请输入完整的验证码')
+    } catch (err) {
+      toast.error('验证码错误')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -120,9 +130,9 @@ export default function RegisterPage() {
       {/* Bottom/Right Side - Register Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
+          <Card className="border-none shadow-none bg-transparent">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">创建账户</CardTitle>
+              <CardTitle className="text-2xl text-center font-bold text-[#2F6A53]">创建账户</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleRegister} className="space-y-4">
@@ -168,23 +178,21 @@ export default function RegisterPage() {
                   <div className="space-y-2">
                     <Label>验证码</Label>
                     <div className="flex items-center gap-2">
-                      <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
+                      <TouchOptimizedInput
+                        type="text"
+                        placeholder="请输入6位验证码"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        maxLength={6}
+                        required
+                      />
                       <Button 
                         type="button" 
                         onClick={verifyOtp} 
-                        disabled={otp.length !== 6}
+                        disabled={isLoading || otp.length !== 6}
                         size="sm"
                       >
-                        验证
+                        {isLoading ? '验证中...' : '验证'}
                       </Button>
                     </div>
                   </div>
@@ -211,9 +219,8 @@ export default function RegisterPage() {
                 </div>
                 <TouchOptimizedButton 
                   type="submit" 
-                  className="w-full" 
+                  className="w-full bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white rounded-lg h-12" 
                   disabled={isLoading || !otpVerified}
-                  size="lg"
                 >
                   {isLoading ? '注册中...' : '注册'}
                 </TouchOptimizedButton>
