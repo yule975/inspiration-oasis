@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
 import { Separator } from '../../components/ui/separator'
-import { Heart, MessageCircle, Search, Plus, Filter, TrendingUp, Clock, User } from 'lucide-react'
+import { Heart, MessageCircle, Search, Plus, Filter, TrendingUp, Clock, User, X } from 'lucide-react'
 import { api } from '../../lib/api'
 import { toast } from 'sonner'
 
@@ -77,6 +77,16 @@ export default function InspirationPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortBy, setSortBy] = useState('latest')
+  const [showStructuredModal, setShowStructuredModal] = useState(false)
+  const [ideaTitle, setIdeaTitle] = useState('')
+  const [problem, setProblem] = useState('')
+  const [businessTags, setBusinessTags] = useState<string[]>([])
+  const [businessInput, setBusinessInput] = useState('')
+  const [aiSolution, setAiSolution] = useState('')
+  const [impact, setImpact] = useState('')
+  const [techTags, setTechTags] = useState<string[]>([])
+  const [techInput, setTechInput] = useState('')
+  const [creating, setCreating] = useState(false)
 
   // 如果未登录，重定向到登录页
   useEffect(() => {
@@ -125,6 +135,45 @@ export default function InspirationPage() {
     } catch (error) {
       console.error('点赞失败:', error)
       toast.error('操作失败')
+    }
+  }
+
+  const addBusinessTag = () => {
+    const v = businessInput.trim()
+    if (!v) return
+    if (!businessTags.includes(v)) setBusinessTags([...businessTags, v])
+    setBusinessInput('')
+  }
+  const removeBusinessTag = (t: string) => setBusinessTags(businessTags.filter(x => x !== t))
+  const addTechTag = () => {
+    const v = techInput.trim()
+    if (!v) return
+    if (!techTags.includes(v)) setTechTags([...techTags, v])
+    setTechInput('')
+  }
+  const removeTechTag = (t: string) => setTechTags(techTags.filter(x => x !== t))
+
+  const handleStructuredCreate = async () => {
+    if (!problem.trim()) {
+      toast.error('请填写痛点/需求描述')
+      return
+    }
+    try {
+      setCreating(true)
+      const title = ideaTitle || problem.substring(0, 50)
+      const content = `【痛点/需求】\n${problem}\n\n【AI解决方案构想】\n${aiSolution}\n\n【预期价值/ROI】\n${impact}`
+      const tags = [...businessTags, ...techTags]
+      const res = await api.post('/inspirations', { title, content, category: '结构化发布', tags })
+      if (res?.data?.success === false) throw new Error(res.data.error || '创建失败')
+      toast.success('已创建结构化灵感')
+      setShowStructuredModal(false)
+      setIdeaTitle(''); setProblem(''); setAiSolution(''); setImpact(''); setBusinessTags([]); setTechTags([])
+      fetchInspirations()
+    } catch (e: any) {
+      console.error(e)
+      toast.error(e?.message || '创建失败')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -262,14 +311,94 @@ export default function InspirationPage() {
 
         {/* 创建按钮 */}
         <div className="fixed bottom-6 right-6">
-          <Button
-            onClick={() => router.push('/create-inspiration')}
-            className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
-            size="icon"
-          >
-            <Plus className="w-6 h-6" />
-          </Button>
+          <div className="flex flex-col gap-3">
+            <Button
+              onClick={() => setShowStructuredModal(true)}
+              className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
+              size="icon"
+              title="结构化发布"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+            <Button
+              onClick={() => router.push('/create-inspiration')}
+              variant="outline"
+              className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
+              size="icon"
+              title="快速创建"
+            >
+              +
+            </Button>
+          </div>
         </div>
+
+        {/* 结构化发布弹窗 */}
+        {showStructuredModal && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+            <div className="w-full max-w-3xl bg-[#FFFBF2] rounded-xl shadow-2xl border border-border/10">
+              <div className="flex items-center justify-between px-6 py-4 border-b">
+                <h3 className="text-lg font-semibold text-[#2F6A53]">发布结构化灵感</h3>
+                <button className="p-1 text-gray-500 hover:text-gray-700" onClick={() => setShowStructuredModal(false)}>
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">灵感标题（可选）</Label>
+                  <Input value={ideaTitle} onChange={(e) => setIdeaTitle(e.target.value)} placeholder="给这个灵感起个名字" className="text-sm placeholder:text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">痛点/需求描述（What's the problem?）</Label>
+                  <Textarea value={problem} onChange={(e) => setProblem(e.target.value)} rows={4} placeholder="例：每周销售团队要花10小时手动整理客户反馈报告…" className="text-sm placeholder:text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">所属业务/场景（Who benefits?）</Label>
+                  <div className="flex gap-2">
+                    <Input value={businessInput} onChange={(e) => setBusinessInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBusinessTag() }}} placeholder="#市场部 #客户分析… 回车添加" className="text-sm" />
+                    <Button type="button" variant="outline" onClick={addBusinessTag}>添加</Button>
+                  </div>
+                  {businessTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {businessTags.map(t => (
+                        <Badge key={t} variant="secondary" className="text-xs cursor-pointer" onClick={() => removeBusinessTag(t)}>
+                          {t} ×
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">AI解决方案构想（How can AI help?）</Label>
+                  <Textarea value={aiSolution} onChange={(e) => setAiSolution(e.target.value)} rows={4} placeholder="例：利用GPT-4分析原始反馈文本，自动提取关键议题、情感倾向，并生成摘要…" className="text-sm placeholder:text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">预期价值/ROI（What's the impact?）</Label>
+                  <Textarea value={impact} onChange={(e) => setImpact(e.target.value)} rows={3} placeholder="例：预计节省工时10小时/周，提升报告洞察质量30%…" className="text-sm placeholder:text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#2F6A53]">关联工具/技术（What to use?）</Label>
+                  <div className="flex gap-2">
+                    <Input value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTechTag() }}} placeholder="#GPT-4 #Python #LangChain… 回车添加" className="text-sm" />
+                    <Button type="button" variant="outline" onClick={addTechTag}>添加</Button>
+                  </div>
+                  {techTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {techTags.map(t => (
+                        <Badge key={t} variant="secondary" className="text-xs cursor-pointer" onClick={() => removeTechTag(t)}>
+                          {t} ×
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowStructuredModal(false)}>取消</Button>
+                <Button onClick={handleStructuredCreate} disabled={creating} className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white">{creating ? '提交中…' : '结构化发布'}</Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
