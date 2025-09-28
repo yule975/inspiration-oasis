@@ -67,9 +67,11 @@ class AliyunEmailService {
       Timestamp: timestamp,
       SignatureVersion: '1.0',
       SignatureNonce: nonce,
+      RegionId: 'cn-hangzhou',
       AccountName: this.config.fromAddress,
       FromAlias: '灵感绿洲',
       AddressType: '1',
+      ReplyToAddress: 'true',
       ToAddress: emailParams.to,
       Subject: emailParams.subject,
       HtmlBody: emailParams.htmlBody,
@@ -153,8 +155,8 @@ class AliyunEmailService {
         hasSecretKey: !!this.config.accessKeySecret
       })
 
-      // 阿里云邮件推送API endpoint - 可能需要指定区域
-      const endpoint = 'https://dm.ap-southeast-1.aliyuncs.com/'
+      // 使用阿里云默认区域端点
+      const endpoint = 'https://dm.aliyuncs.com/'
       
       console.log('🔍 API endpoint:', endpoint)
       console.log('🔍 请求体参数:', Object.keys(requestParams))
