@@ -90,13 +90,7 @@ function InspirationPageContent() {
   const [techInput, setTechInput] = useState('')
   const [creating, setCreating] = useState(false)
 
-  // 如果未登录，重定向到登录页（预览模式除外）
-  useEffect(() => {
-    if (!isAuthenticated && !preview) {
-      router.push('/login')
-      return
-    }
-  }, [isAuthenticated, preview, router])
+  // 不再强制登录拦截：未登录也可浏览正式页面
 
   // 获取灵感列表
   const fetchInspirations = async () => {
@@ -120,10 +114,8 @@ function InspirationPageContent() {
   }
 
   useEffect(() => {
-    if (isAuthenticated || preview) {
-      fetchInspirations()
-    }
-  }, [isAuthenticated, preview, searchQuery, selectedCategory, sortBy])
+    fetchInspirations()
+  }, [searchQuery, selectedCategory, sortBy])
 
   // 点赞功能
   const handleLike = async (inspirationId: string) => {
@@ -179,9 +171,7 @@ function InspirationPageContent() {
     }
   }
 
-  if (!isAuthenticated && !preview) {
-    return null
-  }
+  // 未登录也渲染页面（创建入口会在下游校验）
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 p-4 md:p-6">
@@ -311,30 +301,28 @@ function InspirationPageContent() {
           )}
         </div>
 
-        {/* 创建按钮（预览模式隐藏） */}
-        {!preview && (
-          <div className="fixed bottom-6 right-6">
-            <div className="flex flex-col gap-3">
-              <Button
-                onClick={() => setShowStructuredModal(true)}
-                className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
-                size="icon"
-                title="结构化发布"
-              >
-                <Plus className="w-6 h-6" />
-              </Button>
-              <Button
-                onClick={() => router.push('/create-inspiration')}
-                variant="outline"
-                className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
-                size="icon"
-                title="快速创建"
-              >
-                +
-              </Button>
-            </div>
+        {/* 创建按钮 */}
+        <div className="fixed bottom-6 right-6">
+          <div className="flex flex-col gap-3">
+            <Button
+              onClick={() => setShowStructuredModal(true)}
+              className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
+              size="icon"
+              title="结构化发布"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+            <Button
+              onClick={() => router.push('/create-inspiration')}
+              variant="outline"
+              className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
+              size="icon"
+              title="快速创建"
+            >
+              +
+            </Button>
           </div>
-        )}
+        </div>
 
         {/* 结构化发布弹窗 */}
         {showStructuredModal && (

@@ -267,7 +267,7 @@ export default function LoginPage() {
 
               <TouchOptimizedButton
                 type="button"
-                onClick={() => router.push('/inspiration?preview=1')}
+                onClick={() => router.push('/inspiration')}
                 className="w-full border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5 bg-transparent font-medium h-12"
                 variant="outline"
               >
