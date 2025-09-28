@@ -34,7 +34,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/send-verification-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, purpose: 'register' }),
       })
       if (!res.ok) throw new Error('发送失败')
       setOtpSent(true)
@@ -51,16 +51,25 @@ export default function RegisterPage() {
       toast.error('请输入6位验证码')
       return
     }
-    // 这里应该调用后端API验证验证码，暂时模拟验证成功
-    // TODO: 实际项目中需要调用验证接口
+    
     try {
       setIsLoading(true)
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setOtpVerified(true)
-      toast.success('验证码验证成功')
+      const res = await fetch('/api/auth/send-verification-code', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: otp }),
+      })
+      
+      const data = await res.json()
+      
+      if (data.success) {
+        setOtpVerified(true)
+        toast.success('验证码验证成功')
+      } else {
+        toast.error(data.error?.message || '验证码错误')
+      }
     } catch (err) {
-      toast.error('验证码错误')
+      toast.error('验证码验证失败')
     } finally {
       setIsLoading(false)
     }
@@ -130,7 +139,7 @@ export default function RegisterPage() {
       {/* Bottom/Right Side - Register Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-none shadow-none bg-[#FFFBF2]">
+          <Card className="border-none shadow-lg bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center text-[#2F6A53]">创建账户</CardTitle>
             </CardHeader>
@@ -144,6 +153,7 @@ export default function RegisterPage() {
                     onChange={e=>setUsername(e.target.value)} 
                     placeholder="你的昵称" 
                     required 
+                    className="text-sm placeholder:text-xs placeholder:text-gray-400"
                   />
                 </div>
                 <div className="space-y-2">
@@ -157,11 +167,12 @@ export default function RegisterPage() {
                       placeholder="your@email.com" 
                       required 
                       disabled={otpVerified}
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
                     {!otpVerified && (
                       <Button 
                         type="button" 
-                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
+                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white text-xs"
                         onClick={sendOtp} 
                         disabled={isLoading || !email}
                         size="sm"
@@ -185,11 +196,12 @@ export default function RegisterPage() {
                       maxLength={6}
                       required
                       disabled={otpVerified}
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
                     {!otpVerified && (
                       <Button 
                         type="button" 
-                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
+                        className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white text-xs"
                         onClick={verifyOtp} 
                         disabled={isLoading || otp.length !== 6}
                         size="sm"
@@ -211,6 +223,7 @@ export default function RegisterPage() {
                     onChange={e=>setPassword(e.target.value)} 
                     placeholder="至少8位，包含大小写字母和数字" 
                     required 
+                    className="text-sm placeholder:text-xs placeholder:text-gray-400"
                   />
                 </div>
                 <TouchOptimizedButton 

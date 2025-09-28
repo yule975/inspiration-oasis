@@ -61,13 +61,45 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/send-verification-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, purpose: 'login' }),
       })
       if (!res.ok) throw new Error('发送失败')
       setOtpSent(true)
       toast.success('验证码已发送，请查收')
     } catch (err) {
       toast.error('发送验证码失败')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOtpLogin = async () => {
+    if (!email || !otp) {
+      toast.error('请填写邮箱和验证码')
+      return
+    }
+    
+    try {
+      setIsLoading(true)
+      // 先验证验证码
+      const verifyRes = await fetch('/api/auth/send-verification-code', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: otp }),
+      })
+      
+      const verifyData = await verifyRes.json()
+      
+      if (verifyData.success) {
+        // 验证码正确，登录成功
+        toast.success('登录成功')
+        router.push('/dashboard')
+      } else {
+        toast.error(verifyData.error?.message || '验证码错误')
+      }
+    } catch (error) {
+      console.error('验证码登录失败:', error)
+      toast.error('登录失败，请稍后重试')
     } finally {
       setIsLoading(false)
     }
@@ -111,7 +143,7 @@ export default function LoginPage() {
       {/* Bottom/Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-none shadow-none bg-[#FFFBF2]">
+          <Card className="border-none shadow-lg bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl text-center text-[#2F6A53]">欢迎回来</CardTitle>
             </CardHeader>
@@ -144,6 +176,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
                   </div>
                 <div className="space-y-2">
@@ -156,8 +189,9 @@ export default function LoginPage() {
                       onChange={(e) => setOtp(e.target.value)}
                       maxLength={6}
                       required
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
-                    <Button type="button" className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white" onClick={sendCode} disabled={isLoading}>
+                    <Button type="button" className="bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white text-xs" onClick={sendCode} disabled={isLoading}>
                       {otpSent ? '重新发送' : '发送验证码'}
                     </Button>
                   </div>
@@ -166,7 +200,7 @@ export default function LoginPage() {
                   type="button"
                   className="w-full bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white rounded-lg h-12"
                   disabled={isLoading || !otp}
-                  onClick={() => router.push('/dashboard')}
+                  onClick={handleOtpLogin}
                 >
                   登录
                 </TouchOptimizedButton>
@@ -182,6 +216,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
                   </div>
                   <div className="space-y-2">
@@ -193,6 +228,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      className="text-sm placeholder:text-xs placeholder:text-gray-400"
                     />
                   </div>
                   <TouchOptimizedButton
