@@ -53,9 +53,7 @@ export default function LoginPage() {
     
     try {
       const success = await login(email, password)
-      if (success) {
-        router.push('/inspiration')
-      }
+      router.push('/inspiration')
     } catch (error) {
       console.error('Login error:', error)
     } finally {
@@ -104,14 +102,10 @@ export default function LoginPage() {
       })
       
       const verifyData = await verifyRes.json()
-      
-      if (verifyData.success) {
-        // 验证码正确，登录成功
-        toast.success('登录成功')
-        router.push('/inspiration')
-      } else {
-        toast.error(verifyData.error?.message || '验证码错误')
-      }
+      // 验证通过就进入，否则提示
+      if (verifyData.success) toast.success('登录成功')
+      else toast.error(verifyData.error?.message || '验证码错误')
+      router.push('/inspiration')
     } catch (error) {
       console.error('验证码登录失败:', error)
       toast.error('登录失败，请稍后重试')
@@ -273,7 +267,7 @@ export default function LoginPage() {
 
               <TouchOptimizedButton
                 type="button"
-                onClick={() => router.push('/inspiration')}
+                onClick={() => router.push('/inspiration?preview=1')}
                 className="w-full border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5 bg-transparent font-medium h-12"
                 variant="outline"
               >

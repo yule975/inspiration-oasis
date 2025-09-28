@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
@@ -71,6 +71,8 @@ const mockInspirations: Inspiration[] = [
 
 export default function InspirationPage() {
   const { user, isAuthenticated } = useAuth()
+  const searchParams = useSearchParams()
+  const preview = searchParams?.get('preview') === '1'
   const router = useRouter()
   const [inspirations, setInspirations] = useState<Inspiration[]>([])
   const [loading, setLoading] = useState(true)
@@ -88,13 +90,13 @@ export default function InspirationPage() {
   const [techInput, setTechInput] = useState('')
   const [creating, setCreating] = useState(false)
 
-  // 如果未登录，重定向到登录页
+  // 如果未登录，重定向到登录页（预览模式除外）
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !preview) {
       router.push('/login')
       return
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, preview, router])
 
   // 获取灵感列表
   const fetchInspirations = async () => {
@@ -118,10 +120,10 @@ export default function InspirationPage() {
   }
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated || preview) {
       fetchInspirations()
     }
-  }, [isAuthenticated, searchQuery, selectedCategory, sortBy])
+  }, [isAuthenticated, preview, searchQuery, selectedCategory, sortBy])
 
   // 点赞功能
   const handleLike = async (inspirationId: string) => {
@@ -177,7 +179,7 @@ export default function InspirationPage() {
     }
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !preview) {
     return null
   }
 
@@ -309,28 +311,30 @@ export default function InspirationPage() {
           )}
         </div>
 
-        {/* 创建按钮 */}
-        <div className="fixed bottom-6 right-6">
-          <div className="flex flex-col gap-3">
-            <Button
-              onClick={() => setShowStructuredModal(true)}
-              className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
-              size="icon"
-              title="结构化发布"
-            >
-              <Plus className="w-6 h-6" />
-            </Button>
-            <Button
-              onClick={() => router.push('/create-inspiration')}
-              variant="outline"
-              className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
-              size="icon"
-              title="快速创建"
-            >
-              +
-            </Button>
+        {/* 创建按钮（预览模式隐藏） */}
+        {!preview && (
+          <div className="fixed bottom-6 right-6">
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={() => setShowStructuredModal(true)}
+                className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
+                size="icon"
+                title="结构化发布"
+              >
+                <Plus className="w-6 h-6" />
+              </Button>
+              <Button
+                onClick={() => router.push('/create-inspiration')}
+                variant="outline"
+                className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
+                size="icon"
+                title="快速创建"
+              >
+                +
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 结构化发布弹窗 */}
         {showStructuredModal && (
