@@ -12,6 +12,8 @@ import { Separator } from '../../components/ui/separator'
 import { Heart, MessageCircle, Search, Plus, Filter, TrendingUp, Clock, User, X } from 'lucide-react'
 import { api } from '../../lib/api'
 import { toast } from 'sonner'
+import { Textarea } from '../../components/ui/textarea'
+import { Label } from '../../components/ui/label'
 
 interface Inspiration {
   id: string
@@ -101,7 +103,7 @@ function InspirationPageContent() {
       if (selectedCategory !== 'all') params.append('category', selectedCategory)
       params.append('sort', sortBy)
       
-      const response = await api.get(`/inspirations?${params.toString()}`)
+      const response = await api.get(`/ideas?${params.toString()}`)
       setInspirations(response.data.data || [])
     } catch (error) {
       console.error('获取灵感列表失败:', error)
@@ -120,7 +122,7 @@ function InspirationPageContent() {
   // 点赞功能
   const handleLike = async (inspirationId: string) => {
     try {
-      await api.post(`/inspirations/${inspirationId}/like`)
+      await api.post(`/ideas/${inspirationId}/like`)
       setInspirations(prev => prev.map(item => 
         item.id === inspirationId 
           ? { ...item, isLiked: !item.isLiked, likes: item.isLiked ? item.likes - 1 : item.likes + 1 }
@@ -157,7 +159,7 @@ function InspirationPageContent() {
       const title = ideaTitle || problem.substring(0, 50)
       const content = `【痛点/需求】\n${problem}\n\n【AI解决方案构想】\n${aiSolution}\n\n【预期价值/ROI】\n${impact}`
       const tags = [...businessTags, ...techTags]
-      const res = await api.post('/inspirations', { title, content, category: '结构化发布', tags })
+      const res = await api.post('/ideas', { title, content, category: '结构化发布', tags })
       if (res?.data?.success === false) throw new Error(res.data.error || '创建失败')
       toast.success('已创建结构化灵感')
       setShowStructuredModal(false)
@@ -174,18 +176,18 @@ function InspirationPageContent() {
   // 未登录也渲染页面（创建入口会在下游校验）
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 p-4 md:p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            灵感广场
+          <h1 className="text-3xl md:text-4xl font-bold text-[#2F6A53] mb-2">
+            灵感绿洲
           </h1>
-          <p className="text-gray-600">发现和分享创意灵感</p>
+          <p className="text-[#2F6A53]/70">发现和分享创意灵感</p>
         </div>
 
         {/* 搜索和筛选 */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 md:p-6 mb-6 shadow-lg">
+        <div className="bg-[#FFFBF2] rounded-xl p-4 md:p-6 mb-6 shadow-lg border-none">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -193,30 +195,30 @@ function InspirationPageContent() {
                 placeholder="搜索灵感..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 text-sm placeholder:text-xs"
               />
             </div>
             <div className="flex gap-2">
               <Button
                 variant={selectedCategory === 'all' ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory('all')}
-                className="touch-manipulation"
+                className={`touch-manipulation ${selectedCategory === 'all' ? 'bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white' : 'border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5'}`}
               >
                 全部
               </Button>
               <Button
-                variant={selectedCategory === '创新' ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory('创新')}
-                className="touch-manipulation"
+                variant={selectedCategory === '结构化发布' ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory('结构化发布')}
+                className={`touch-manipulation ${selectedCategory === '结构化发布' ? 'bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white' : 'border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5'}`}
               >
-                创新
+                结构化
               </Button>
               <Button
-                variant={selectedCategory === '设计' ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory('设计')}
-                className="touch-manipulation"
+                variant={selectedCategory === '创新' ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory('创新')}
+                className={`touch-manipulation ${selectedCategory === '创新' ? 'bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white' : 'border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5'}`}
               >
-                设计
+                创新
               </Button>
             </div>
           </div>
@@ -242,7 +244,7 @@ function InspirationPageContent() {
             ))
           ) : (
             inspirations.map((inspiration) => (
-              <Card key={inspiration.id} className="hover:shadow-lg transition-shadow duration-200 bg-white/80 backdrop-blur-sm touch-manipulation">
+              <Card key={inspiration.id} className="hover:shadow-xl transition-shadow duration-200 bg-[#FFFBF2] border-none shadow-lg touch-manipulation">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
                     <Avatar className="w-8 h-8">
@@ -258,7 +260,7 @@ function InspirationPageContent() {
                       </p>
                     </div>
                   </div>
-                  <CardTitle className="text-lg">{inspiration.title}</CardTitle>
+                  <CardTitle className="text-lg text-[#2F6A53]">{inspiration.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
@@ -268,7 +270,7 @@ function InspirationPageContent() {
                   {/* 标签 */}
                   <div className="flex flex-wrap gap-1 mb-4">
                     {inspiration.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                      <Badge key={index} variant="secondary" className="text-xs bg-[#2F6A53]/10 text-[#2F6A53]">
                         {tag}
                       </Badge>
                     ))}
@@ -293,7 +295,7 @@ function InspirationPageContent() {
                         {inspiration.comments}
                       </Button>
                     </div>
-                    <Badge variant="outline">{inspiration.category}</Badge>
+                    <Badge variant="outline" className="border-[#2F6A53]/20 text-[#2F6A53]">{inspiration.category}</Badge>
                   </div>
                 </CardContent>
               </Card>
