@@ -1,16 +1,16 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Badge } from '../../components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
+import { Separator } from '../../components/ui/separator'
 import { Heart, MessageCircle, Search, Plus, Filter, TrendingUp, Clock, User } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api } from '../../lib/api'
 import { toast } from 'sonner'
 
 interface Inspiration {
