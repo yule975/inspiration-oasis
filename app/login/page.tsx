@@ -27,7 +27,7 @@ export default function LoginPage() {
   // 如果已经登录，重定向到仪表板
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard')
+      router.push('/inspiration')
     }
   }, [isAuthenticated, router])
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
     try {
       const success = await login(email, password)
       if (success) {
-        router.push('/dashboard')
+        router.push('/inspiration')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -108,7 +108,7 @@ export default function LoginPage() {
       if (verifyData.success) {
         // 验证码正确，登录成功
         toast.success('登录成功')
-        router.push('/dashboard')
+        router.push('/inspiration')
       } else {
         toast.error(verifyData.error?.message || '验证码错误')
       }
@@ -273,7 +273,7 @@ export default function LoginPage() {
 
               <TouchOptimizedButton
                 type="button"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/inspiration')}
                 className="w-full border-[#2F6A53]/20 text-[#2F6A53] hover:bg-[#2F6A53]/5 bg-transparent font-medium h-12"
                 variant="outline"
               >

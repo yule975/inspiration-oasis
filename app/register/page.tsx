@@ -116,7 +116,7 @@ export default function RegisterPage() {
     try {
       setIsLoading(true)
       const ok = await register(username, email, password)
-      if (ok) router.push('/login')
+      if (ok) router.push('/inspiration')
     } finally {
       setIsLoading(false)
     }

@@ -264,7 +264,7 @@ export default function InspirationPage() {
         <div className="fixed bottom-6 right-6">
           <Button
             onClick={() => router.push('/create-inspiration')}
-            className="w-14 h-14 rounded-full shadow-lg touch-manipulation"
+            className="w-14 h-14 rounded-full shadow-lg touch-manipulation bg-[#2F6A53] hover:bg-[#2F6A53]/90 text-white"
             size="icon"
           >
             <Plus className="w-6 h-6" />
