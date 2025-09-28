@@ -118,7 +118,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="mt-4 sm:mt-6 lg:mt-12">
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-[#2F6A53] leading-tight font-sans tracking-wide">灵感绿洲</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-normal text-[#2F6A53] leading-tight font-sans tracking-wide">灵感绿洲</h1>
           </div>
 
           <div className="mt-2 sm:mt-4 lg:mt-24">
@@ -130,9 +130,9 @@ export default function RegisterPage() {
       {/* Bottom/Right Side - Register Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-none shadow-none bg-transparent">
+          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center font-bold text-[#2F6A53]">创建账户</CardTitle>
+              <CardTitle className="text-2xl text-center text-[#2F6A53]">创建账户</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleRegister} className="space-y-4">

@@ -99,7 +99,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-4 sm:mt-6 lg:mt-12">
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-[#2F6A53] leading-tight font-sans tracking-wide">灵感绿洲</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-normal text-[#2F6A53] leading-tight font-sans tracking-wide">灵感绿洲</h1>
           </div>
 
           <div className="mt-2 sm:mt-4 lg:mt-24">
@@ -111,22 +111,22 @@ export default function LoginPage() {
       {/* Bottom/Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md space-y-4 sm:space-y-6 lg:space-y-8">
-          <Card className="border-none shadow-none bg-transparent">
+          <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-[#FFFBF2]">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center font-bold text-[#2F6A53]">欢迎回来</CardTitle>
+              <CardTitle className="text-2xl text-center text-[#2F6A53]">欢迎回来</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-center gap-8">
                 <button
                   type="button"
-                  className={`text-base pb-1 ${mode === 'otp' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-gray-500'}`}
+                  className={`text-base pb-1 ${mode === 'otp' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-[#2F6A53]'}`}
                   onClick={() => setMode('otp')}
                 >
                   验证码登录
                 </button>
                 <button
                   type="button"
-                  className={`text-base pb-1 ${mode === 'password' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-gray-500'}`}
+                  className={`text-base pb-1 ${mode === 'password' ? 'text-[#2F6A53] border-b-2 border-[#2F6A53] font-semibold' : 'text-[#2F6A53]'}`}
                   onClick={() => setMode('password')}
                 >
                   密码登录
@@ -208,10 +208,10 @@ export default function LoginPage() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border/30" />
+                  <span className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">或</span>
+                  <span className="bg-[#FFFBF2] px-2 text-gray-500">或</span>
                 </div>
               </div>
 
