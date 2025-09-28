@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
+  const [otpToken, setOtpToken] = useState("")
   const [mode, setMode] = useState<'otp' | 'password'>('otp')
   const [isLoading, setIsLoading] = useState(false)
   const [countdown, setCountdown] = useState(0) // 倒计时状态
@@ -75,8 +76,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email, purpose: 'login' }),
       })
       if (!res.ok) throw new Error('发送失败')
+      const data = await res.json()
       setOtpSent(true)
       setCountdown(60) // 开始60秒倒计时
+      setOtpToken(data?.token || "")
       toast.success('验证码已发送，请查收')
     } catch (err) {
       toast.error('发送验证码失败')
@@ -97,7 +100,7 @@ export default function LoginPage() {
       const verifyRes = await fetch('/api/auth/send-verification-code', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: otp }),
+        body: JSON.stringify({ email, code: otp, token: otpToken }),
       })
       
       const verifyData = await verifyRes.json()
