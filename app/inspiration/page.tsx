@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '../../components/ui/button'
@@ -69,7 +69,7 @@ const mockInspirations: Inspiration[] = [
   }
 ]
 
-export default function InspirationPage() {
+function InspirationPageContent() {
   const { user, isAuthenticated } = useAuth()
   const searchParams = useSearchParams()
   const preview = searchParams?.get('preview') === '1'
@@ -405,5 +405,13 @@ export default function InspirationPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function InspirationPage() {
+  return (
+    <Suspense fallback={null}>
+      <InspirationPageContent />
+    </Suspense>
   )
 }
